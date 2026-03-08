@@ -69,6 +69,7 @@ export const PRODUCTS = [
 export const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
+  { href: "/demo", label: "Demo" },
 ] as const;
 
 // Solution 특징
@@ -191,4 +192,48 @@ export const GLOBE_ARCS = [
   [4, 3], // Seoul → Tokyo
   [5, 6], // Singapore → Sydney
   [1, 7], // NY → São Paulo
+] as const;
+
+// ─────────────────────────────────────────────────────────────
+// Demo 페이지 관련 상수
+// ─────────────────────────────────────────────────────────────
+
+// 데모 스토리 섹션 (스크롤 기반 스토리텔링)
+export const DEMO_STORIES = [
+  {
+    phase: "01",
+    title: "Data Ingestion",
+    description:
+      "수만 개의 데이터 포인트가 실시간으로 수집됩니다. 각 파티클은 하나의 데이터 스트림을 나타냅니다.",
+    detail: "초당 240만 건의 이벤트를 처리하는 분산 스트리밍 파이프라인",
+  },
+  {
+    phase: "02",
+    title: "Pattern Recognition",
+    description:
+      "AI가 데이터의 구조를 파악하고 패턴으로 조직화합니다. 혼돈에서 질서를 만들어냅니다.",
+    detail: "딥러닝 기반 클러스터링으로 실시간 패턴 탐지",
+  },
+  {
+    phase: "03",
+    title: "Insight Generation",
+    description:
+      "분석된 데이터가 의미 있는 인사이트로 변환됩니다. 복잡한 관계를 직관적으로 시각화합니다.",
+    detail: "자연어 기반 인사이트 리포트 자동 생성",
+  },
+  {
+    phase: "04",
+    title: "Autonomous Action",
+    description:
+      "도출된 인사이트를 기반으로 최적의 액션을 자동 수행합니다. 사람의 개입 없이 실행됩니다.",
+    detail: "강화학습 기반 의사결정 엔진으로 최적 액션 실행",
+  },
+] as const;
+
+// 데모 성능 수치
+export const DEMO_METRICS = [
+  { value: "50K", label: "Particles Rendered", suffix: "" },
+  { value: "60", label: "FPS on GPU", suffix: "+" },
+  { value: "<16", label: "Frame Budget", suffix: "ms" },
+  { value: "WebGL", label: "2.0 Powered", suffix: "" },
 ] as const;
