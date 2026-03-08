@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { BRAND, SECTIONS, NAV_LINKS } from "@/lib/constants";
+import { BRAND, NAV_LINKS } from "@/lib/constants";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
-  const isHome = pathname === "/";
 
   // 스크롤 감지 → 배경 전환
   useEffect(() => {
@@ -29,22 +27,6 @@ export default function Navbar() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
-
-  // 섹션 스크롤 이동 (홈에서만 동작, 서브페이지에서는 홈으로 이동)
-  const scrollToSection = useCallback(
-    (id: string) => {
-      if (isHome) {
-        const el = document.getElementById(id);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      } else {
-        router.push(`/#${id}`);
-      }
-      setMenuOpen(false);
-    },
-    [isHome, router]
-  );
 
   // 오버레이 메뉴 애니메이션 variants
   const overlayVariants = {
@@ -75,25 +57,11 @@ export default function Navbar() {
     }),
   };
 
-  // 데스크탑 네비게이션 아이템 (홈 섹션 + 서브페이지 링크)
-  const desktopNavItems = [
-    ...SECTIONS.map((s) => ({ type: "section" as const, id: s.id, label: s.label })),
-    ...NAV_LINKS.filter((l) => l.href !== "/").map((l) => ({
-      type: "link" as const,
-      href: l.href,
-      label: l.label,
-    })),
-  ];
-
-  // 모바일 메뉴 아이템
-  const mobileNavItems = [
-    ...SECTIONS.map((s) => ({ type: "section" as const, id: s.id, label: s.label })),
-    ...NAV_LINKS.filter((l) => l.href !== "/").map((l) => ({
-      type: "link" as const,
-      href: l.href,
-      label: l.label,
-    })),
-  ];
+  // 현재 페이지인지 판별
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
     <>
@@ -124,44 +92,33 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* 데스크탑 링크 */}
+          {/* 데스크탑 링크: Home / About / Demo */}
           <ul className="hidden md:flex items-center gap-8" role="list">
-            {desktopNavItems.map((item) =>
-              item.type === "section" ? (
-                <li key={item.id}>
-                  <button
-                    onClick={() => scrollToSection(item.id)}
-                    className="text-sm text-[#8a8a9a] hover:text-white transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4a9eff] rounded px-1"
-                  >
-                    {item.label}
-                  </button>
-                </li>
-              ) : (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={[
-                      "text-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4a9eff] rounded px-1",
-                      pathname === item.href
-                        ? "text-white font-medium"
-                        : "text-[#8a8a9a] hover:text-white",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              )
-            )}
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={[
+                    "text-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4a9eff] rounded px-1",
+                    isActive(link.href)
+                      ? "text-white font-medium"
+                      : "text-[#8a8a9a] hover:text-white",
+                  ].join(" ")}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
 
           {/* 데스크탑 CTA */}
           <div className="hidden md:block">
-            <button
-              onClick={() => scrollToSection("contact")}
+            <Link
+              href="/#contact"
               className="px-5 py-2 text-sm font-medium rounded-full border border-[#4a9eff]/50 text-[#4a9eff] hover:bg-[#4a9eff]/10 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4a9eff]"
             >
               Get Started
-            </button>
+            </Link>
           </div>
 
           {/* 모바일 햄버거 버튼 */}
@@ -173,7 +130,6 @@ export default function Navbar() {
             aria-controls="mobile-menu"
           >
             <span className="sr-only">{menuOpen ? "메뉴 닫기" : "메뉴 열기"}</span>
-            {/* 햄버거 → X 전환 아이콘 */}
             <div className="w-5 h-4 flex flex-col justify-between">
               <motion.span
                 animate={menuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
@@ -219,41 +175,29 @@ export default function Navbar() {
               <div className="w-full h-px bg-white/5 mb-12" />
 
               <ul className="flex flex-col gap-2" role="list">
-                {mobileNavItems.map((item, i) => (
+                {NAV_LINKS.map((link, i) => (
                   <motion.li
-                    key={item.type === "section" ? item.id : item.href}
+                    key={link.href}
                     custom={i}
                     variants={itemVariants}
                     initial="hidden"
                     animate="visible"
                   >
-                    {item.type === "section" ? (
-                      <button
-                        onClick={() => scrollToSection(item.id)}
-                        className="w-full text-left py-4 text-3xl font-light text-[#8a8a9a] hover:text-white transition-colors duration-200 focus:outline-none focus-visible:text-white"
-                      >
-                        <span className="text-sm text-[#4a9eff] font-mono mr-3 align-middle">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        {item.label}
-                      </button>
-                    ) : (
-                      <Link
-                        href={item.href}
-                        onClick={() => setMenuOpen(false)}
-                        className={[
-                          "block w-full text-left py-4 text-3xl font-light transition-colors duration-200 focus:outline-none focus-visible:text-white",
-                          pathname === item.href
-                            ? "text-white"
-                            : "text-[#8a8a9a] hover:text-white",
-                        ].join(" ")}
-                      >
-                        <span className="text-sm text-[#4a9eff] font-mono mr-3 align-middle">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        {item.label}
-                      </Link>
-                    )}
+                    <Link
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className={[
+                        "block w-full text-left py-4 text-3xl font-light transition-colors duration-200 focus:outline-none focus-visible:text-white",
+                        isActive(link.href)
+                          ? "text-white"
+                          : "text-[#8a8a9a] hover:text-white",
+                      ].join(" ")}
+                    >
+                      <span className="text-sm text-[#4a9eff] font-mono mr-3 align-middle">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      {link.label}
+                    </Link>
                   </motion.li>
                 ))}
               </ul>
@@ -264,12 +208,13 @@ export default function Navbar() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, transition: { delay: 0.5, duration: 0.3 } }}
               >
-                <button
-                  onClick={() => scrollToSection("contact")}
-                  className="w-full py-4 text-center text-base font-medium rounded-full border border-[#4a9eff]/50 text-[#4a9eff] hover:bg-[#4a9eff]/10 transition-all duration-200 focus:outline-none"
+                <Link
+                  href="/#contact"
+                  onClick={() => setMenuOpen(false)}
+                  className="block w-full py-4 text-center text-base font-medium rounded-full border border-[#4a9eff]/50 text-[#4a9eff] hover:bg-[#4a9eff]/10 transition-all duration-200 focus:outline-none"
                 >
                   Get Started
-                </button>
+                </Link>
               </motion.div>
             </div>
           </motion.div>

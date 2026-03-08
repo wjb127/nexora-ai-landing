@@ -1,5 +1,4 @@
 import HeroScene from "@/components/HeroScene";
-import Navbar from "@/components/Navbar";
 import SideNav from "@/components/SideNav";
 import WhySection from "@/components/WhySection";
 import ProductsSection from "@/components/ProductsSection";
@@ -10,7 +9,6 @@ import Footer from "@/components/Footer";
 export default function Home() {
   return (
     <main>
-      <Navbar />
       <SideNav />
       <section id="hero">
         <HeroScene />
